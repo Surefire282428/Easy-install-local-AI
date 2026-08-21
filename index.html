@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LocalAI Setup · Lokale KI einrichten</title>
+  <!-- Font Awesome für Icons (Lucide-Ersatz) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <!-- Google Font für Monospace (JetBrains Mono) -->
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #09090b;
+      color: #fafafa;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      padding: 32px 20px 64px;
+      display: flex;
+      justify-content: center;
+    }
+    .container { max-width: 660px; width: 100%; }
+    .header { display: flex; align-items: center; gap: 10px; margin-bottom: 40px; }
+    .header-icon {
+      width: 28px; height: 28px; border-radius: 6px; background: #2563eb;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .header-icon i { color: #fff; font-size: 14px; }
+    .header-title { font-size: 14px; font-weight: 600; color: #fafafa; }
+    .header-badge {
+      font-size: 11px; color: #52525b; background: #111115;
+      border: 1px solid #27272a; border-radius: 4px;
+      padding: 2px 8px; margin-left: 2px;
+    }
+    /* Komponenten */
+    .label { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #52525b; margin-bottom: 6px; }
+    .card {
+      background: #111115; border: 1px solid #27272a; border-radius: 10px;
+      padding: 16px 18px; transition: border-color 0.15s, background 0.15s;
+      cursor: default;
+    }
+    .card-tinted { background: rgba(37,99,235,0.12); border-color: #2563eb33; }
+    .card-selected { border-color: #2563eb; border-width: 1.5px; }
+    .card-clickable { cursor: pointer; }
+    .card-clickable:hover:not(.card-selected) { border-color: #3f3f46; }
+    .card-tinted:hover:not(.card-selected) { border-color: #2563eb33; }
+    .progress-bar { display: flex; gap: 4px; margin-bottom: 32px; }
+    .progress-bar .dot { height: 2px; flex: 1; border-radius: 2px; background: #27272a; transition: background 0.25s; }
+    .progress-bar .dot.active { background: #2563eb; }
+    .progress-bar .dot.next { background: #3f3f46; }
+    .rating-dots { display: flex; gap: 3px; }
+    .rating-dots .dot { width: 6px; height: 6px; border-radius: 2px; background: #27272a; }
+    .rating-dots .dot.filled-green { background: #16a34a; }
+    .rating-dots .dot.filled-blue { background: #2563eb; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px; cursor: pointer;
+      border: none; border-radius: 6px; padding: 9px 18px; font-size: 13px;
+      font-weight: 500; transition: background 0.15s, opacity 0.15s;
+      background: transparent; color: #a1a1aa;
+    }
+    .btn-primary { background: #2563eb; color: #fff; border: 1px solid #2563eb; }
+    .btn-primary:disabled { background: #111115; color: #52525b; border-color: #27272a; cursor: not-allowed; opacity: 0.5; }
+    .btn-outline { border: 1px solid #27272a; }
+    .btn-outline:hover:not(:disabled) { border-color: #3f3f46; }
+    .btn-sm { padding: 4px 11px; font-size: 12px; }
+    .copy-btn {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: transparent; color: #a1a1aa;
+      border: 1px solid #27272a; border-radius: 6px; padding: 4px 11px;
+      font-size: 12px; font-weight: 500; cursor: pointer; white-space: nowrap;
+      transition: all 0.18s;
+    }
+    .copy-btn.done { background: rgba(22,163,74,0.1); color: #4ade80; border-color: #16a34a44; }
+    .code-block {
+      background: #06060a; border: 1px solid #27272a; border-radius: 6px;
+      padding: 10px 14px; display: flex; align-items: center; gap: 10px;
+    }
+    .code-block code { flex: 1; font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace; font-size: 13px; color: #e2e8f0; word-break: break-all; }
+    .flex { display: flex; align-items: center; gap: 8px; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+    .mt-8 { margin-top: 8px; }
+    .mt-10 { margin-top: 10px; }
+    .mb-6 { margin-bottom: 6px; }
+    .mb-10 { margin-bottom: 10px; }
+    .mb-14 { margin-bottom: 14px; }
+    .mb-16 { margin-bottom: 16px; }
+    .mb-20 { margin-bottom: 20px; }
+    .mb-28 { margin-bottom: 28px; }
+    .mb-32 { margin-bottom: 32px; }
+    .text-muted { color: #a1a1aa; }
+    .text-muted-light { color: #52525b; }
+    .text-accent { color: #60a5fa; }
+    .text-green { color: #4ade80; }
+    .text-sm { font-size: 13px; line-height: 1.6; }
+    .text-xs { font-size: 12px; line-height: 1.6; }
+    .font-mono { font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace; }
+    .gap-8 { gap: 8px; }
+    .gap-10 { gap: 10px; }
+    .gap-12 { gap: 12px; }
+    .gap-14 { gap: 14px; }
+    .flex-wrap { flex-wrap: wrap; }
+    .items-center { align-items: center; }
+    .flex-1 { flex: 1; }
+    .shrink-0 { flex-shrink: 0; }
+    .text-center { text-align: center; }
+    .w-full { width: 100%; }
+    .max-w-280 { max-width: 280px; }
+    .inline-block { display: inline-block; }
+    .mt-1 { margin-top: 1px; }
+    .mt-2 { margin-top: 2px; }
+    .mt-12 { margin-top: 12px; }
+    .mt-24 { margin-top: 24px; }
+    .mt-28 { margin-top: 28px; }
+    .p-8 { padding: 8px; }
+    .py-8 { padding-top: 8px; padding-bottom: 8px; }
+    .px-14 { padding-left: 14px; padding-right: 14px; }
+    .bg-surface { background: #111115; }
+    .bg-surface-hi { background: #17171d; }
+    .bg-code { background: #06060a; }
+    .border-hi { border-color: #3f3f46; }
+    .rounded { border-radius: 6px; }
+    .rounded-card { border-radius: 10px; }
+    .badge {
+      font-size: 10px; font-weight: 600; letter-spacing: 0.04em;
+      padding: 2px 7px; border-radius: 4px; text-transform: uppercase;
+      background: rgba(37,99,235,0.12); color: #60a5fa;
+    }
+    .badge-green { background: rgba(22,163,74,0.1); color: #4ade80; }
+    .check-icon { color: #60a5fa; }
+    .circle-check { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 50%; background: rgba(22,163,74,0.1); margin-bottom: 16px; }
+    .circle-check i { color: #4ade80; font-size: 20px; }
+    a { color: #60a5fa; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    button { font-family: inherit; }
+    .step-number {
+      width: 26px; height: 26px; border-radius: 6px; background: rgba(37,99,235,0.12);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; font-size: 12px; font-weight: 700; color: #60a5fa;
+    }
+    .inline-code {
+      font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+      font-size: 12px; background: #06060a; padding: 1px 6px; border-radius: 4px;
+    }
+    .nav-row { display: flex; gap: 8px; margin-top: 28px; }
+    .tip-box {
+      background: rgba(37,99,235,0.12); border: 1px solid #2563eb33;
+      border-radius: 10px; padding: 16px 18px;
+    }
+    /* responsive */
+    @media (max-width: 600px) {
+      .grid-3 { grid-template-columns: 1fr; }
+      .grid-2 { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div class="container" id="app"></div>
+<script>
+  // ─── Daten ──────────────────────────────────────────────────────────────
+  const MODELS = [
+    { id:"gemma3:1b",     name:"Gemma 3 1B",     by:"Google",     size:"800 MB", minRam:4,  speed:5, quality:2, desc:"Kleinstes Modell, läuft auf jedem PC. Gut zum Ausprobieren.", pick:false },
+    { id:"phi3:mini",     name:"Phi-3 Mini",      by:"Microsoft",  size:"2.2 GB", minRam:4,  speed:5, quality:3, desc:"Kompaktes Modell mit überraschend guter Qualität für Code und Q&A.", pick:true  },
+    { id:"llama3.2:3b",   name:"Llama 3.2 3B",    by:"Meta",       size:"2.0 GB", minRam:4,  speed:4, quality:3, desc:"Metas kleines, aktuelles Modell — gut für Chat und einfache Texte.", pick:false },
+    { id:"mistral:7b",    name:"Mistral 7B",       by:"Mistral AI", size:"4.1 GB", minRam:8,  speed:3, quality:4, desc:"Ausgewogenes Allround-Modell aus Frankreich — eines der besten 7B-Modelle.", pick:false },
+    { id:"llama3.1:8b",   name:"Llama 3.1 8B",    by:"Meta",       size:"4.7 GB", minRam:8,  speed:3, quality:4, desc:"Starkes Allround-Modell mit sehr guter Performance über alle Aufgaben.", pick:true  },
+    { id:"qwen2.5:7b",    name:"Qwen 2.5 7B",     by:"Alibaba",    size:"4.4 GB", minRam:8,  speed:3, quality:4, desc:"Hervorragend für Deutsch, Mehrsprachigkeit und Code. Sehr zu empfehlen.", pick:false },
+    { id:"qwen3:8b",      name:"Qwen 3 8B",        by:"Alibaba",    size:"5.2 GB", minRam:8,  speed:3, quality:5, desc:"Aktuellstes Qwen-Modell mit hybridem Denkmodus — stark in Logik und Deutsch.", pick:true  },
+    { id:"qwen3.5:8b",    name:"Qwen 3.5 8B",      by:"Alibaba",    size:"5.5 GB", minRam:8,  speed:3, quality:5, desc:"Neues Qwen-Modell für starke Logik, Code und mehrsprachige Aufgaben.", pick:true  },
+    { id:"deepseek-r1:8b",name:"DeepSeek R1 8B",   by:"DeepSeek",  size:"4.9 GB", minRam:16, speed:2, quality:5, desc:"Reasoning-Modell mit Chain-of-Thought — löst komplexe Probleme Schritt für Schritt.", pick:false },
+    { id:"llama3.1:70b",  name:"Llama 3.1 70B",   by:"Meta",       size:"40 GB",  minRam:64, speed:1, quality:5, desc:"Metas Flaggschiff — nahezu GPT-4-Qualität vollständig offline.", pick:false },
+  ];
+
+  const OS = [
+    { id:"windows", icon:"fa-windows", label:"Windows", sub:"10 / 11" },
+    { id:"mac",     icon:"fa-apple",   label:"macOS",   sub:"Intel / Apple Silicon" },
+    { id:"linux",   icon:"fa-linux",   label:"Linux",   sub:"Ubuntu · Debian · Arch" },
+  ];
+
+  const RAM_OPTS = [
+    { v:4,  label:"4 GB",  sub:"Minimum" },
+    { v:8,  label:"8 GB",  sub:"Standard" },
+    { v:16, label:"16 GB", sub:"Gut" },
+    { v:32, label:"32 GB", sub:"Stark" },
+    { v:64, label:"64 GB+",sub:"Profi" },
+  ];
+
+  function installCmd(os) {
+    if (os === "windows") return "winget install Ollama.Ollama";
+    if (os === "mac")     return "brew install ollama";
+    return "curl -fsSL https://ollama.com/install.sh | sh";
+  }
+  function terminalHint(os) {
+    if (os === "windows") return "Win + X  →  Windows PowerShell (Administrator)";
+    if (os === "mac")     return "Cmd + Leertaste  →  \"Terminal\"  →  Enter";
+    return "Strg + Alt + T";
+  }
+
+  // ─── State ──────────────────────────────────────────────────────────────
+  let state = {
+    step: 0,
+    os: null,
+    ram: null,
+    model: null,
+  };
+
+  const app = document.getElementById('app');
+
+  // ─── Hilfsfunktionen ────────────────────────────────────────────────────
+  function setState(newState) {
+    Object.assign(state, newState);
+    render();
+  }
+
+  function copyText(text, btn) {
+    navigator.clipboard.writeText(text).then(() => {
+      btn.classList.add('done');
+      btn.innerHTML = '<i class="fas fa-check"></i> Kopiert';
+      setTimeout(() => {
+        btn.classList.remove('done');
+        btn.innerHTML = '<i class="fas fa-copy"></i> Kopieren';
+      }, 2000);
+    });
+  }
+
+  function createCopyButton(text) {
+    const btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.innerHTML = '<i class="fas fa-copy"></i> Kopieren';
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      copyText(text, btn);
+    });
+    return btn;
+  }
+
+  function codeLine(cmd, note) {
+    const div = document.createElement('div');
+    if (note) {
+      const p = document.createElement('p');
+      p.className = 'text-xs text-muted mb-6';
+      p.textContent = note;
+      div.appendChild(p);
+    }
+    const wrap = document.createElement('div');
+    wrap.className = 'code-block';
+    const code = document.createElement('code');
+    code.textContent = cmd;
+    wrap.appendChild(code);
+    wrap.appendChild(createCopyButton(cmd));
+    div.appendChild(wrap);
+    return div;
+  }
+
+  function ratingDots(n, max=5, colorClass) {
+    const div = document.createElement('div');
+    div.className = 'rating-dots';
+    for (let i=0; i<max; i++) {
+      const dot = document.createElement('div');
+      dot.className = 'dot' + (i<n ? ' filled-'+colorClass : '');
+      div.appendChild(dot);
+    }
+    return div;
+  }
+
+  function progressBar(step, total=4) {
+    const div = document.createElement('div');
+    div.className = 'progress-bar';
+    for (let i=0; i<total; i++) {
+      const dot = document.createElement('div');
+      dot.className = 'dot' + (i<step ? ' active' : i===step ? ' next' : '');
+      div.appendChild(dot);
+    }
+    return div;
+  }
+
+  function navRow(onBack, onNext, nextLabel="Weiter", disabled=false) {
+    const div = document.createElement('div');
+    div.className = 'nav-row';
+    const backBtn = document.createElement('button');
+    backBtn.className = 'btn btn-outline';
+    backBtn.innerHTML = '<i class="fas fa-chevron-left"></i> Zurück';
+    backBtn.addEventListener('click', onBack);
+    div.appendChild(backBtn);
+
+    const nextBtn = document.createElement('button');
+    nextBtn.className = 'btn btn-primary';
+    nextBtn.innerHTML = (nextLabel || 'Weiter') + ' <i class="fas fa-chevron-right"></i>';
+    if (disabled) nextBtn.disabled = true;
+    nextBtn.addEventListener('click', onNext);
+    div.appendChild(nextBtn);
+    return div;
+  }
+
+  function card(children, selected=false, onClick=null, tinted=false) {
+    const div = document.createElement('div');
+    let cls = 'card';
+    if (tinted) cls += ' card-tinted';
+    if (selected) cls += ' card-selected';
+    if (onClick) cls += ' card-clickable';
+    div.className = cls;
+    if (onClick) div.addEventListener('click', onClick);
+    if (children instanceof HTMLElement) div.appendChild(children);
+    else if (typeof children === 'string') div.innerHTML = children;
+    else if (Array.isArray(children)) children.forEach(c => div.appendChild(c));
+    return div;
+  }
+
+  // ─── Step Komponenten ──────────────────────────────────────────────────
+
+  function Welcome(onNext) {
+    const frag = document.createDocumentFragment();
+
+    const top = document.createElement('div');
+    top.className = 'mb-28';
+    const label = document.createElement('p');
+    label.className = 'label text-accent';
+    label.textContent = 'Lokale KI · Einrichtung';
+    top.appendChild(label);
+    const h1 = document.createElement('h1');
+    h1.style.cssText = 'font-size:28px; font-weight:600; color:#fafafa; line-height:1.25; margin-bottom:12px;';
+    h1.textContent = 'Starte deinen eigenen KI-Assistenten auf deinem PC';
+    top.appendChild(h1);
+    const p = document.createElement('p');
+    p.style.cssText = 'font-size:15px; color:#a1a1aa; max-width:480px; line-height:1.75;';
+    p.textContent = 'Leistungsstarke KI-Modelle direkt auf deiner Hardware ausführen — ohne Abonnement, ohne Datenweitergabe, in unter 5 Minuten eingerichtet. Kein Vorwissen erforderlich.';
+    top.appendChild(p);
+    frag.appendChild(top);
+
+    const features = [
+      { icon:'fa-lock', title:'Vollständig privat', desc:'Deine Daten verlassen nie deinen PC' },
+      { icon:'fa-wifi-slash', title:'Offline nutzbar', desc:'Kein Internet nach dem Download nötig' },
+      { icon:'fa-robot', title:'Keine laufenden Kosten', desc:'Kein Abo, kein API-Limit, kein Token-Preis' },
+    ];
+    const grid = document.createElement('div');
+    grid.className = 'grid-3 mb-20';
+    features.forEach(f => {
+      const c = card(`
+        <div><i class="fas ${f.icon}" style="color:#60a5fa; font-size:18px; margin-bottom:12px;"></i></div>
+        <p style="font-weight:500; font-size:13px; color:#fafafa; margin-bottom:4px;">${f.title}</p>
+        <p style="font-size:12px; color:#a1a1aa; line-height:1.6;">${f.desc}</p>
+      `);
+      grid.appendChild(c);
+    });
+    frag.appendChild(grid);
+
+    const tip = card(`
+      <div class="flex">
+        <i class="fas fa-box" style="color:#60a5fa; font-size:17px;"></i>
+        <div>
+          <p style="font-weight:500; font-size:13px; color:#fafafa; margin-bottom:4px;">Basiert auf Ollama</p>
+          <p style="font-size:13px; color:#a1a1aa; line-height:1.65;">Das meistgenutzte Open-Source-Tool für lokale KI-Modelle. Dieser Wizard installiert Ollama und richtet ein passendes Modell automatisch für dich ein.</p>
+        </div>
+      </div>
+    `, false, null, true);
+    frag.appendChild(tip);
+
+    const btnWrap = document.createElement('div');
+    btnWrap.className = 'mt-24';
+    const btn = document.createElement('button');
+    btn.className = 'btn btn-primary';
+    btn.style.cssText = 'padding:11px 24px; font-size:14px;';
+    btn.innerHTML = 'Einrichtung starten <i class="fas fa-arrow-right"></i>';
+    btn.addEventListener('click', onNext);
+    btnWrap.appendChild(btn);
+    frag.appendChild(btnWrap);
+
+    return frag;
+  }
+
+  function StepOS(os, setOs, onNext, onBack) {
+    const frag = document.createDocumentFragment();
+    frag.appendChild(progressBar(0));
+    const label = document.createElement('p');
+    label.className = 'label';
+    label.textContent = 'Schritt 1 von 4';
+    frag.appendChild(label);
+    const h2 = document.createElement('h2');
+    h2.style.cssText = 'font-size:20px; font-weight:600; color:#fafafa; margin-bottom:6px;';
+    h2.textContent = 'Betriebssystem';
+    frag.appendChild(h2);
+    const p = document.createElement('p');
+    p.className = 'text-sm text-muted mb-20';
+    p.textContent = 'Die Installationsbefehle unterscheiden sich je nach System.';
+    frag.appendChild(p);
+
+    const grid = document.createElement('div');
+    grid.className = 'grid-3 mb-10';
+    OS.forEach(o => {
+      const selected = os === o.id;
+      const c = card(`
+        <div class="text-center py-8">
+          <i class="fab ${o.icon}" style="font-size:28px; color:${selected ? '#60a5fa' : '#52525b'}; margin-bottom:12px;"></i>
+          <p style="font-weight:500; font-size:14px; color:#fafafa; margin-bottom:3px;">${o.label}</p>
+          <p style="font-size:12px; color:#52525b;">${o.sub}</p>
+          ${selected ? '<div class="mt-12"><i class="fas fa-check-circle" style="color:#60a5fa; font-size:16px;"></i></div>' : ''}
+        </div>
+      `, selected, () => setOs(o.id));
+      grid.appendChild(c);
+    });
+    frag.appendChild(grid);
+
+    frag.appendChild(navRow(onBack, onNext, 'Weiter', !os));
+    return frag;
+  }
+
+  function StepHardware(ram, setRam, onNext, onBack) {
+    const frag = document.createDocumentFragment();
+    frag.appendChild(progressBar(1));
+    const label = document.createElement('p');
+    label.className = 'label';
+    label.textContent = 'Schritt 2 von 4';
+    frag.appendChild(label);
+    const h2 = document.createElement('h2');
+    h2.style.cssText = 'font-size:20px; font-weight:600; color:#fafafa; margin-bottom:6px;';
+    h2.textContent = 'Arbeitsspeicher';
+    frag.appendChild(h2);
+    const p = document.createElement('p');
+    p.className = 'text-sm text-muted mb-16';
+    p.textContent = 'Damit werden nur kompatible Modelle angezeigt.';
+    frag.appendChild(p);
+
+    const info = document.createElement('div');
+    info.className = 'card bg-surface border-hi mb-16';
+    info.style.cssText = 'padding:11px 14px;';
+    info.innerHTML = `
+      <div class="flex"><i class="fas fa-info-circle" style="color:#52525b; font-size:14px;"></i>
+      <p class="text-sm text-muted" style="line-height:1.6;">RAM prüfen: <strong style="color:#fafafa;">Windows</strong> → Win + Pause &ensp;
+      <strong style="color:#fafafa;">Mac</strong> → Apfel-Menü → Über diesen Mac</p></div>
+    `;
+    frag.appendChild(info);
+
+    const grid = document.createElement('div');
+    grid.className = 'grid-2';
+    grid.style.cssText = 'gap:8px; margin-bottom:8px;';
+    RAM_OPTS.forEach(r => {
+      const selected = ram === r.v;
+      const c = card(`
+        <div class="flex" style="justify-content:space-between; align-items:center;">
+          <div><p style="font-weight:600; font-size:16px; color:#fafafa;">${r.label}</p><p style="font-size:11px; color:#52525b; margin-top:2px;">${r.sub}</p></div>
+          ${selected ? '<i class="fas fa-check" style="color:#60a5fa;"></i>' : ''}
+        </div>
+      `, selected, () => setRam(r.v));
+      grid.appendChild(c);
+    });
+    frag.appendChild(grid);
+
+    frag.appendChild(navRow(onBack, onNext, 'Modelle anzeigen', !ram));
+    return frag;
+  }
+
+  function StepModel(models, topPick, selected, setSelected, onNext, onBack) {
+    const frag = document.createDocumentFragment();
+    frag.appendChild(progressBar(2));
+    const label = document.createElement('p');
+    label.className = 'label';
+    label.textContent = 'Schritt 3 von 4';
+    frag.appendChild(label);
+    const h2 = document.createElement('h2');
+    h2.style.cssText = 'font-size:20px; font-weight:600; color:#fafafa; margin-bottom:6px;';
+    h2.textContent = 'Modell auswählen';
+    frag.appendChild(h2);
+    const p = document.createElement('p');
+    p.className = 'text-sm text-muted mb-14';
+    p.textContent = 'Nur Modelle, die mit deiner Hardware kompatibel sind.';
+    frag.appendChild(p);
+
+    if (topPick && !selected) {
+      const tip = card(`
+        <p class="text-sm text-muted" style="line-height:1.6;"><strong style="color:#fafafa;">Empfehlung: ${topPick.name}</strong> · ${topPick.desc}</p>
+      `, false, null, true);
+      frag.appendChild(tip);
+    }
+
+    const list = document.createElement('div');
+    list.style.cssText = 'display:grid; gap:8px; margin-bottom:8px;';
+    models.forEach(m => {
+      const sel = selected && selected.id === m.id;
+      const c = card(`
+        <div class="flex gap-14">
+          <div class="flex-1">
+            <div class="flex flex-wrap items-center gap-8" style="margin-bottom:3px;">
+              <span style="font-weight:600; font-size:14px; color:#fafafa;">${m.name}</span>
+              <span style="font-size:12px; color:#52525b;">von ${m.by}</span>
+              <span style="font-size:12px; color:#52525b;">${m.size}</span>
+              ${m.pick ? '<span class="badge">Empfohlen</span>' : ''}
+            </div>
+            <p class="text-sm text-muted" style="line-height:1.6; margin-bottom:10px;">${m.desc}</p>
+            <div class="grid-2" style="max-width:280px; gap:10px;">
+              <div><p style="font-size:10px; color:#52525b; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:5px;">Geschwindigkeit</p>${ratingDots(m.speed,5,'green').outerHTML}</div>
+              <div><p style="font-size:10px; color:#52525b; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:5px;">Qualität</p>${ratingDots(m.quality,5,'blue').outerHTML}</div>
+            </div>
+          </div>
+          ${sel ? '<i class="fas fa-check" style="color:#60a5fa; font-size:16px; flex-shrink:0; margin-top:2px;"></i>' : ''}
+        </div>
+      `, sel, () => setSelected(sel ? null : m));
+      list.appendChild(c);
+    });
+    frag.appendChild(list);
+
+    const chosen = selected || topPick;
+    frag.appendChild(navRow(onBack, onNext, chosen ? `${chosen.name} installieren` : 'Weiter', !chosen));
+    return frag;
+  }
+
+  function StepInstall(os, model, onNext, onBack) {
+    const cmd1 = installCmd(os);
+    const cmd3 = `ollama run ${model?.id || 'llama3.2:3b'}`;
+    const hint = terminalHint(os);
+
+    const frag = document.createDocumentFragment();
+    frag.appendChild(progressBar(3));
+    const label = document.createElement('p');
+    label.className = 'label';
+    label.textContent = 'Schritt 4 von 4';
+    frag.appendChild(label);
+    const h2 = document.createElement('h2');
+    h2.style.cssText = 'font-size:20px; font-weight:600; color:#fafafa; margin-bottom:6px;';
+    h2.textContent = 'Installation';
+    frag.appendChild(h2);
+    const p = document.createElement('p');
+    p.className = 'text-sm text-muted mb-20';
+    p.textContent = 'Führe die drei Befehle der Reihe nach im Terminal aus. Einfach kopieren, einfügen, Enter drücken.';
+    frag.appendChild(p);
+
+    const steps = [
+      { num:1, title:'Terminal öffnen', content: `<div class="flex items-center gap-8 bg-code border-hi rounded" style="padding:9px 13px;"><i class="fas fa-terminal" style="color:#52525b;"></i><code class="font-mono text-sm text-muted">${hint}</code></div>` },
+      { num:2, title:'Ollama installieren', content: codeLine(cmd1, 'Im Terminal eingeben und Enter drücken:').outerHTML },
+      { num:3, title:`${model?.name || 'Modell'} herunterladen und starten`, content: codeLine(cmd3, 'Lädt das Modell herunter und startet direkt den Chat:').outerHTML + `<p class="text-xs text-muted-light mt-8" style="line-height:1.6;">Erster Download: ca. ${model?.size || '?'} — danach startet der Chat automatisch im Terminal.</p>` },
+    ];
+
+    const list = document.createElement('div');
+    list.style.cssText = 'display:grid; gap:10px; margin-bottom:8px;';
+    steps.forEach(s => {
+      const c = card(`
+        <div class="flex gap-14">
+          <div class="step-number">${s.num}</div>
+          <div class="flex-1">
+            <p style="font-weight:500; font-size:13px; color:#fafafa; margin-bottom:8px;">${s.title}</p>
+            ${s.content}
+          </div>
+        </div>
+      `);
+      list.appendChild(c);
+    });
+    frag.appendChild(list);
+
+    frag.appendChild(navRow(onBack, onNext, 'Abschliessen'));
+    return frag;
+  }
+
+  function Done(model, onRestart) {
+    const tips = [
+      { cmd:`ollama run ${model?.id||'llama3.2:3b'}`, label:'Modell starten' },
+      { cmd:'ollama list', label:'Installierte Modelle anzeigen' },
+      { cmd:'ollama pull qwen3.5:8b', label:'Weiteres Modell herunterladen' },
+      { cmd:`ollama rm ${model?.id||'llama3.2:3b'}`, label:'Modell entfernen' },
+    ];
+    const tools = [
+      { name:'Open WebUI', url:'https://openwebui.com', desc:'Browser-basierte Chat-Oberfläche, verbindet sich automatisch mit Ollama.' },
+      { name:'LM Studio',  url:'https://lmstudio.ai',   desc:'Desktop-Anwendung mit grafischer Benutzeroberfläche, ebenfalls Ollama-kompatibel.' },
+    ];
+
+    const frag = document.createDocumentFragment();
+
+    const head = document.createElement('div');
+    head.className = 'mb-32';
+    head.innerHTML = `
+      <div class="circle-check"><i class="fas fa-check"></i></div>
+      <h2 style="font-size:22px; font-weight:600; color:#fafafa; margin-bottom:8px;">Einrichtung abgeschlossen</h2>
+      <p class="text-sm text-muted" style="max-width:420px; line-height:1.75;"><strong style="color:#fafafa;">${model?.name||'Dein Modell'}</strong> läuft jetzt lokal auf deinem PC. Tippe im Terminal direkt deine Nachricht und drücke Enter.</p>
+    `;
+    frag.appendChild(head);
+
+    const tipBox = card(`
+      <p style="font-weight:500; font-size:13px; color:#fafafa; margin-bottom:6px;">Ersten Chat starten</p>
+      <p class="text-sm text-muted" style="line-height:1.7; margin-bottom:6px;">Schreibe nach dem Start einfach deine Nachricht und drücke Enter. Zum Beenden: <code class="inline-code">/bye</code> oder Strg+D.</p>
+      <p class="text-xs text-muted-light">Teste mit: "Erkläre mir maschinelles Lernen in drei Sätzen auf Deutsch."</p>
+    `, false, null, true);
+    frag.appendChild(tipBox);
+
+    const cmdCard = card(`
+      <p style="font-weight:500; font-size:13px; color:#fafafa; margin-bottom:14px;">Nützliche Befehle</p>
+      <div style="display:grid; gap:8px;">${tips.map(t => `<div><p style="font-size:11px; color:#52525b; margin-bottom:5px;">${t.label}</p>${codeLine(t.cmd).outerHTML}</div>`).join('')}</div>
+    `);
+    cmdCard.className += ' mb-10';
+    frag.appendChild(cmdCard);
+
+    const toolCard = card(`
+      <p style="font-weight:500; font-size:13px; color:#fafafa; margin-bottom:12px;">Grafische Oberfläche <span style="font-weight:400; color:#a1a1aa;">(optional)</span></p>
+      <div class="grid-2">${tools.map(t => `
+        <div class="bg-code border-hi rounded" style="padding:12px 14px;">
+          <div class="flex items-center gap-6 mb-6"><i class="fas fa-globe" style="color:#52525b; font-size:13px;"></i><span style="font-weight:500; font-size:13px; color:#fafafa;">${t.name}</span></div>
+          <p class="text-xs text-muted" style="line-height:1.6; margin-bottom:8px;">${t.desc}</p>
+          <a href="${t.url}" style="font-size:12px; color:#60a5fa; text-decoration:none; display:inline-flex; align-items:center; gap:4px;">${t.url.replace('https://','')} <i class="fas fa-external-link-alt" style="font-size:10px;"></i></a>
+        </div>
+      `).join('')}</div>
+    `);
+    toolCard.className += ' mb-28';
+    frag.appendChild(toolCard);
+
+    const restartBtn = document.createElement('button');
+    restartBtn.className = 'btn btn-outline';
+    restartBtn.innerHTML = '<i class="fas fa-undo-alt"></i> Neu starten';
+    restartBtn.addEventListener('click', onRestart);
+    frag.appendChild(restartBtn);
+
+    return frag;
+  }
+
+  // ─── Render ─────────────────────────────────────────────────────────────
+  function render() {
+    const { step, os, ram, model } = state;
+
+    // ─── filtered & topPick ──────────────────────────────────────────────
+    const filtered = MODELS.filter(m => m.minRam <= (ram || 4));
+    const topPick  = filtered.find(m => m.id === 'qwen3.5:8b') || filtered.find(m => m.pick) || filtered[0];
+    const chosen   = model || topPick;
+
+    // ─── Step factory ────────────────────────────────────────────────────
+    let content;
+    const onNext = () => setState({ step: step+1 });
+    const onBack = () => setState({ step: step-1 });
+    const onRestart = () => setState({ step:0, os:null, ram:null, model:null });
+
+    if (step === 0) {
+      content = Welcome(onNext);
+    } else if (step === 1) {
+      content = StepOS(os, (val) => setState({ os:val }), onNext, onBack);
+    } else if (step === 2) {
+      content = StepHardware(ram, (val) => setState({ ram:val }), onNext, onBack);
+    } else if (step === 3) {
+      content = StepModel(filtered, topPick, model, (val) => setState({ model:val }), onNext, onBack);
+    } else if (step === 4) {
+      content = StepInstall(os, chosen, onNext, onBack);
+    } else if (step === 5) {
+      content = Done(chosen, onRestart);
+    } else {
+      content = document.createTextNode('');
+    }
+
+    app.innerHTML = '';
+    // ─── Header ──────────────────────────────────────────────────────────
+    const header = document.createElement('div');
+    header.className = 'header';
+    header.innerHTML = `
+      <div class="header-icon"><i class="fas fa-microchip"></i></div>
+      <span class="header-title">LocalAI Setup</span>
+      <span class="header-badge">Setup</span>
+    `;
+    app.appendChild(header);
+    // ─── Content ────────────────────────────────────────────────────────
+    if (content) app.appendChild(content);
+  }
+
+  // initial render
+  render();
+</script>
+</body>
+</html>
