@@ -1,12 +1,10 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LocalAI Setup · Lokale KI einrichten</title>
-  <!-- Font Awesome für Icons (Lucide-Ersatz) -->
+  <title>LocalAI Setup · Local AI Setup</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <!-- Google Font für Monospace (JetBrains Mono) -->
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -32,7 +30,6 @@
       border: 1px solid #27272a; border-radius: 4px;
       padding: 2px 8px; margin-left: 2px;
     }
-    /* Komponenten */
     .label { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #52525b; margin-bottom: 6px; }
     .card {
       background: #111115; border: 1px solid #27272a; border-radius: 10px;
@@ -147,7 +144,6 @@
       background: rgba(37,99,235,0.12); border: 1px solid #2563eb33;
       border-radius: 10px; padding: 16px 18px;
     }
-    /* responsive */
     @media (max-width: 600px) {
       .grid-3 { grid-template-columns: 1fr; }
       .grid-2 { grid-template-columns: 1fr; }
@@ -157,18 +153,17 @@
 <body>
 <div class="container" id="app"></div>
 <script>
-  // ─── Daten ──────────────────────────────────────────────────────────────
   const MODELS = [
-    { id:"gemma3:1b",     name:"Gemma 3 1B",     by:"Google",     size:"800 MB", minRam:4,  speed:5, quality:2, desc:"Kleinstes Modell, läuft auf jedem PC. Gut zum Ausprobieren.", pick:false },
-    { id:"phi3:mini",     name:"Phi-3 Mini",      by:"Microsoft",  size:"2.2 GB", minRam:4,  speed:5, quality:3, desc:"Kompaktes Modell mit überraschend guter Qualität für Code und Q&A.", pick:true  },
-    { id:"llama3.2:3b",   name:"Llama 3.2 3B",    by:"Meta",       size:"2.0 GB", minRam:4,  speed:4, quality:3, desc:"Metas kleines, aktuelles Modell — gut für Chat und einfache Texte.", pick:false },
-    { id:"mistral:7b",    name:"Mistral 7B",       by:"Mistral AI", size:"4.1 GB", minRam:8,  speed:3, quality:4, desc:"Ausgewogenes Allround-Modell aus Frankreich — eines der besten 7B-Modelle.", pick:false },
-    { id:"llama3.1:8b",   name:"Llama 3.1 8B",    by:"Meta",       size:"4.7 GB", minRam:8,  speed:3, quality:4, desc:"Starkes Allround-Modell mit sehr guter Performance über alle Aufgaben.", pick:true  },
-    { id:"qwen2.5:7b",    name:"Qwen 2.5 7B",     by:"Alibaba",    size:"4.4 GB", minRam:8,  speed:3, quality:4, desc:"Hervorragend für Deutsch, Mehrsprachigkeit und Code. Sehr zu empfehlen.", pick:false },
-    { id:"qwen3:8b",      name:"Qwen 3 8B",        by:"Alibaba",    size:"5.2 GB", minRam:8,  speed:3, quality:5, desc:"Aktuellstes Qwen-Modell mit hybridem Denkmodus — stark in Logik und Deutsch.", pick:true  },
-    { id:"qwen3.5:8b",    name:"Qwen 3.5 8B",      by:"Alibaba",    size:"5.5 GB", minRam:8,  speed:3, quality:5, desc:"Neues Qwen-Modell für starke Logik, Code und mehrsprachige Aufgaben.", pick:true  },
-    { id:"deepseek-r1:8b",name:"DeepSeek R1 8B",   by:"DeepSeek",  size:"4.9 GB", minRam:16, speed:2, quality:5, desc:"Reasoning-Modell mit Chain-of-Thought — löst komplexe Probleme Schritt für Schritt.", pick:false },
-    { id:"llama3.1:70b",  name:"Llama 3.1 70B",   by:"Meta",       size:"40 GB",  minRam:64, speed:1, quality:5, desc:"Metas Flaggschiff — nahezu GPT-4-Qualität vollständig offline.", pick:false },
+    { id:"gemma3:1b",     name:"Gemma 3 1B",     by:"Google",     size:"800 MB", minRam:4,  speed:5, quality:2, desc:"Smallest model, runs on any PC. Good for trying out.", pick:false },
+    { id:"phi3:mini",     name:"Phi-3 Mini",      by:"Microsoft",  size:"2.2 GB", minRam:4,  speed:5, quality:3, desc:"Compact model with surprisingly good quality for code and Q&A.", pick:true  },
+    { id:"llama3.2:3b",   name:"Llama 3.2 3B",    by:"Meta",       size:"2.0 GB", minRam:4,  speed:4, quality:3, desc:"Meta's small, current model — good for chat and simple text.", pick:false },
+    { id:"mistral:7b",    name:"Mistral 7B",       by:"Mistral AI", size:"4.1 GB", minRam:8,  speed:3, quality:4, desc:"Balanced all-round model from France — one of the best 7B models.", pick:false },
+    { id:"llama3.1:8b",   name:"Llama 3.1 8B",    by:"Meta",       size:"4.7 GB", minRam:8,  speed:3, quality:4, desc:"Strong all-round model with very good performance across all tasks.", pick:true  },
+    { id:"qwen2.5:7b",    name:"Qwen 2.5 7B",     by:"Alibaba",    size:"4.4 GB", minRam:8,  speed:3, quality:4, desc:"Excellent for German, multilingual tasks and code. Highly recommended.", pick:false },
+    { id:"qwen3:8b",      name:"Qwen 3 8B",        by:"Alibaba",    size:"5.2 GB", minRam:8,  speed:3, quality:5, desc:"Latest Qwen model with hybrid reasoning mode — strong in logic and German.", pick:true  },
+    { id:"qwen3.5:8b",    name:"Qwen 3.5 8B",      by:"Alibaba",    size:"5.5 GB", minRam:8,  speed:3, quality:5, desc:"New Qwen model for strong logic, code and multilingual tasks.", pick:true  },
+    { id:"deepseek-r1:8b",name:"DeepSeek R1 8B",   by:"DeepSeek",  size:"4.9 GB", minRam:16, speed:2, quality:5, desc:"Reasoning model with chain-of-thought — solves complex problems step by step.", pick:false },
+    { id:"llama3.1:70b",  name:"Llama 3.1 70B",   by:"Meta",       size:"40 GB",  minRam:64, speed:1, quality:5, desc:"Meta's flagship — near GPT-4 quality fully offline.", pick:false },
   ];
 
   const OS = [
@@ -180,9 +175,9 @@
   const RAM_OPTS = [
     { v:4,  label:"4 GB",  sub:"Minimum" },
     { v:8,  label:"8 GB",  sub:"Standard" },
-    { v:16, label:"16 GB", sub:"Gut" },
-    { v:32, label:"32 GB", sub:"Stark" },
-    { v:64, label:"64 GB+",sub:"Profi" },
+    { v:16, label:"16 GB", sub:"Good" },
+    { v:32, label:"32 GB", sub:"Powerful" },
+    { v:64, label:"64 GB+",sub:"Expert" },
   ];
 
   function installCmd(os) {
@@ -192,11 +187,10 @@
   }
   function terminalHint(os) {
     if (os === "windows") return "Win + X  →  Windows PowerShell (Administrator)";
-    if (os === "mac")     return "Cmd + Leertaste  →  \"Terminal\"  →  Enter";
-    return "Strg + Alt + T";
+    if (os === "mac")     return "Cmd + Space  →  \"Terminal\"  →  Enter";
+    return "Ctrl + Alt + T";
   }
 
-  // ─── State ──────────────────────────────────────────────────────────────
   let state = {
     step: 0,
     os: null,
@@ -206,7 +200,6 @@
 
   const app = document.getElementById('app');
 
-  // ─── Hilfsfunktionen ────────────────────────────────────────────────────
   function setState(newState) {
     Object.assign(state, newState);
     render();
@@ -215,10 +208,10 @@
   function copyText(text, btn) {
     navigator.clipboard.writeText(text).then(() => {
       btn.classList.add('done');
-      btn.innerHTML = '<i class="fas fa-check"></i> Kopiert';
+      btn.innerHTML = '<i class="fas fa-check"></i> Copied';
       setTimeout(() => {
         btn.classList.remove('done');
-        btn.innerHTML = '<i class="fas fa-copy"></i> Kopieren';
+        btn.innerHTML = '<i class="fas fa-copy"></i> Copy';
       }, 2000);
     });
   }
@@ -226,7 +219,7 @@
   function createCopyButton(text) {
     const btn = document.createElement('button');
     btn.className = 'copy-btn';
-    btn.innerHTML = '<i class="fas fa-copy"></i> Kopieren';
+    btn.innerHTML = '<i class="fas fa-copy"></i> Copy';
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
       copyText(text, btn);
@@ -274,18 +267,18 @@
     return div;
   }
 
-  function navRow(onBack, onNext, nextLabel="Weiter", disabled=false) {
+  function navRow(onBack, onNext, nextLabel="Next", disabled=false) {
     const div = document.createElement('div');
     div.className = 'nav-row';
     const backBtn = document.createElement('button');
     backBtn.className = 'btn btn-outline';
-    backBtn.innerHTML = '<i class="fas fa-chevron-left"></i> Zurück';
+    backBtn.innerHTML = '<i class="fas fa-chevron-left"></i> Back';
     backBtn.addEventListener('click', onBack);
     div.appendChild(backBtn);
 
     const nextBtn = document.createElement('button');
     nextBtn.className = 'btn btn-primary';
-    nextBtn.innerHTML = (nextLabel || 'Weiter') + ' <i class="fas fa-chevron-right"></i>';
+    nextBtn.innerHTML = (nextLabel || 'Next') + ' <i class="fas fa-chevron-right"></i>';
     if (disabled) nextBtn.disabled = true;
     nextBtn.addEventListener('click', onNext);
     div.appendChild(nextBtn);
@@ -306,8 +299,6 @@
     return div;
   }
 
-  // ─── Step Komponenten ──────────────────────────────────────────────────
-
   function Welcome(onNext) {
     const frag = document.createDocumentFragment();
 
@@ -315,22 +306,22 @@
     top.className = 'mb-28';
     const label = document.createElement('p');
     label.className = 'label text-accent';
-    label.textContent = 'Lokale KI · Einrichtung';
+    label.textContent = 'Local AI · Setup';
     top.appendChild(label);
     const h1 = document.createElement('h1');
     h1.style.cssText = 'font-size:28px; font-weight:600; color:#fafafa; line-height:1.25; margin-bottom:12px;';
-    h1.textContent = 'Starte deinen eigenen KI-Assistenten auf deinem PC';
+    h1.textContent = 'Start your own AI assistant on your PC';
     top.appendChild(h1);
     const p = document.createElement('p');
     p.style.cssText = 'font-size:15px; color:#a1a1aa; max-width:480px; line-height:1.75;';
-    p.textContent = 'Leistungsstarke KI-Modelle direkt auf deiner Hardware ausführen — ohne Abonnement, ohne Datenweitergabe, in unter 5 Minuten eingerichtet. Kein Vorwissen erforderlich.';
+    p.textContent = 'Run powerful AI models directly on your hardware — no subscription, no data sharing, set up in under 5 minutes. No prior knowledge required.';
     top.appendChild(p);
     frag.appendChild(top);
 
     const features = [
-      { icon:'fa-lock', title:'Vollständig privat', desc:'Deine Daten verlassen nie deinen PC' },
-      { icon:'fa-wifi-slash', title:'Offline nutzbar', desc:'Kein Internet nach dem Download nötig' },
-      { icon:'fa-robot', title:'Keine laufenden Kosten', desc:'Kein Abo, kein API-Limit, kein Token-Preis' },
+      { icon:'fa-lock', title:'Fully private', desc:'Your data never leaves your PC' },
+      { icon:'fa-wifi-slash', title:'Offline capable', desc:'No internet needed after download' },
+      { icon:'fa-robot', title:'No ongoing costs', desc:'No subscription, no API limits, no token pricing' },
     ];
     const grid = document.createElement('div');
     grid.className = 'grid-3 mb-20';
@@ -348,8 +339,8 @@
       <div class="flex">
         <i class="fas fa-box" style="color:#60a5fa; font-size:17px;"></i>
         <div>
-          <p style="font-weight:500; font-size:13px; color:#fafafa; margin-bottom:4px;">Basiert auf Ollama</p>
-          <p style="font-size:13px; color:#a1a1aa; line-height:1.65;">Das meistgenutzte Open-Source-Tool für lokale KI-Modelle. Dieser Wizard installiert Ollama und richtet ein passendes Modell automatisch für dich ein.</p>
+          <p style="font-weight:500; font-size:13px; color:#fafafa; margin-bottom:4px;">Based on Ollama</p>
+          <p style="font-size:13px; color:#a1a1aa; line-height:1.65;">The most popular open-source tool for local AI models. This wizard installs Ollama and sets up a suitable model for you automatically.</p>
         </div>
       </div>
     `, false, null, true);
@@ -360,7 +351,7 @@
     const btn = document.createElement('button');
     btn.className = 'btn btn-primary';
     btn.style.cssText = 'padding:11px 24px; font-size:14px;';
-    btn.innerHTML = 'Einrichtung starten <i class="fas fa-arrow-right"></i>';
+    btn.innerHTML = 'Start setup <i class="fas fa-arrow-right"></i>';
     btn.addEventListener('click', onNext);
     btnWrap.appendChild(btn);
     frag.appendChild(btnWrap);
@@ -373,15 +364,15 @@
     frag.appendChild(progressBar(0));
     const label = document.createElement('p');
     label.className = 'label';
-    label.textContent = 'Schritt 1 von 4';
+    label.textContent = 'Step 1 of 4';
     frag.appendChild(label);
     const h2 = document.createElement('h2');
     h2.style.cssText = 'font-size:20px; font-weight:600; color:#fafafa; margin-bottom:6px;';
-    h2.textContent = 'Betriebssystem';
+    h2.textContent = 'Operating System';
     frag.appendChild(h2);
     const p = document.createElement('p');
     p.className = 'text-sm text-muted mb-20';
-    p.textContent = 'Die Installationsbefehle unterscheiden sich je nach System.';
+    p.textContent = 'Installation commands differ depending on your system.';
     frag.appendChild(p);
 
     const grid = document.createElement('div');
@@ -400,7 +391,7 @@
     });
     frag.appendChild(grid);
 
-    frag.appendChild(navRow(onBack, onNext, 'Weiter', !os));
+    frag.appendChild(navRow(onBack, onNext, 'Next', !os));
     return frag;
   }
 
@@ -409,15 +400,15 @@
     frag.appendChild(progressBar(1));
     const label = document.createElement('p');
     label.className = 'label';
-    label.textContent = 'Schritt 2 von 4';
+    label.textContent = 'Step 2 of 4';
     frag.appendChild(label);
     const h2 = document.createElement('h2');
     h2.style.cssText = 'font-size:20px; font-weight:600; color:#fafafa; margin-bottom:6px;';
-    h2.textContent = 'Arbeitsspeicher';
+    h2.textContent = 'Memory (RAM)';
     frag.appendChild(h2);
     const p = document.createElement('p');
     p.className = 'text-sm text-muted mb-16';
-    p.textContent = 'Damit werden nur kompatible Modelle angezeigt.';
+    p.textContent = 'This filters only compatible models.';
     frag.appendChild(p);
 
     const info = document.createElement('div');
@@ -425,8 +416,8 @@
     info.style.cssText = 'padding:11px 14px;';
     info.innerHTML = `
       <div class="flex"><i class="fas fa-info-circle" style="color:#52525b; font-size:14px;"></i>
-      <p class="text-sm text-muted" style="line-height:1.6;">RAM prüfen: <strong style="color:#fafafa;">Windows</strong> → Win + Pause &ensp;
-      <strong style="color:#fafafa;">Mac</strong> → Apfel-Menü → Über diesen Mac</p></div>
+      <p class="text-sm text-muted" style="line-height:1.6;">Check RAM: <strong style="color:#fafafa;">Windows</strong> → Win + Pause &ensp;
+      <strong style="color:#fafafa;">Mac</strong> → Apple menu → About This Mac</p></div>
     `;
     frag.appendChild(info);
 
@@ -445,7 +436,7 @@
     });
     frag.appendChild(grid);
 
-    frag.appendChild(navRow(onBack, onNext, 'Modelle anzeigen', !ram));
+    frag.appendChild(navRow(onBack, onNext, 'Show models', !ram));
     return frag;
   }
 
@@ -454,20 +445,20 @@
     frag.appendChild(progressBar(2));
     const label = document.createElement('p');
     label.className = 'label';
-    label.textContent = 'Schritt 3 von 4';
+    label.textContent = 'Step 3 of 4';
     frag.appendChild(label);
     const h2 = document.createElement('h2');
     h2.style.cssText = 'font-size:20px; font-weight:600; color:#fafafa; margin-bottom:6px;';
-    h2.textContent = 'Modell auswählen';
+    h2.textContent = 'Select a model';
     frag.appendChild(h2);
     const p = document.createElement('p');
     p.className = 'text-sm text-muted mb-14';
-    p.textContent = 'Nur Modelle, die mit deiner Hardware kompatibel sind.';
+    p.textContent = 'Only models compatible with your hardware are shown.';
     frag.appendChild(p);
 
     if (topPick && !selected) {
       const tip = card(`
-        <p class="text-sm text-muted" style="line-height:1.6;"><strong style="color:#fafafa;">Empfehlung: ${topPick.name}</strong> · ${topPick.desc}</p>
+        <p class="text-sm text-muted" style="line-height:1.6;"><strong style="color:#fafafa;">Recommendation: ${topPick.name}</strong> · ${topPick.desc}</p>
       `, false, null, true);
       frag.appendChild(tip);
     }
@@ -481,14 +472,14 @@
           <div class="flex-1">
             <div class="flex flex-wrap items-center gap-8" style="margin-bottom:3px;">
               <span style="font-weight:600; font-size:14px; color:#fafafa;">${m.name}</span>
-              <span style="font-size:12px; color:#52525b;">von ${m.by}</span>
+              <span style="font-size:12px; color:#52525b;">by ${m.by}</span>
               <span style="font-size:12px; color:#52525b;">${m.size}</span>
-              ${m.pick ? '<span class="badge">Empfohlen</span>' : ''}
+              ${m.pick ? '<span class="badge">Recommended</span>' : ''}
             </div>
             <p class="text-sm text-muted" style="line-height:1.6; margin-bottom:10px;">${m.desc}</p>
             <div class="grid-2" style="max-width:280px; gap:10px;">
-              <div><p style="font-size:10px; color:#52525b; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:5px;">Geschwindigkeit</p>${ratingDots(m.speed,5,'green').outerHTML}</div>
-              <div><p style="font-size:10px; color:#52525b; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:5px;">Qualität</p>${ratingDots(m.quality,5,'blue').outerHTML}</div>
+              <div><p style="font-size:10px; color:#52525b; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:5px;">Speed</p>${ratingDots(m.speed,5,'green').outerHTML}</div>
+              <div><p style="font-size:10px; color:#52525b; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:5px;">Quality</p>${ratingDots(m.quality,5,'blue').outerHTML}</div>
             </div>
           </div>
           ${sel ? '<i class="fas fa-check" style="color:#60a5fa; font-size:16px; flex-shrink:0; margin-top:2px;"></i>' : ''}
@@ -499,7 +490,7 @@
     frag.appendChild(list);
 
     const chosen = selected || topPick;
-    frag.appendChild(navRow(onBack, onNext, chosen ? `${chosen.name} installieren` : 'Weiter', !chosen));
+    frag.appendChild(navRow(onBack, onNext, chosen ? `Install ${chosen.name}` : 'Next', !chosen));
     return frag;
   }
 
@@ -512,7 +503,7 @@
     frag.appendChild(progressBar(3));
     const label = document.createElement('p');
     label.className = 'label';
-    label.textContent = 'Schritt 4 von 4';
+    label.textContent = 'Step 4 of 4';
     frag.appendChild(label);
     const h2 = document.createElement('h2');
     h2.style.cssText = 'font-size:20px; font-weight:600; color:#fafafa; margin-bottom:6px;';
@@ -520,13 +511,13 @@
     frag.appendChild(h2);
     const p = document.createElement('p');
     p.className = 'text-sm text-muted mb-20';
-    p.textContent = 'Führe die drei Befehle der Reihe nach im Terminal aus. Einfach kopieren, einfügen, Enter drücken.';
+    p.textContent = 'Run the three commands in order in your terminal. Just copy, paste, and press Enter.';
     frag.appendChild(p);
 
     const steps = [
-      { num:1, title:'Terminal öffnen', content: `<div class="flex items-center gap-8 bg-code border-hi rounded" style="padding:9px 13px;"><i class="fas fa-terminal" style="color:#52525b;"></i><code class="font-mono text-sm text-muted">${hint}</code></div>` },
-      { num:2, title:'Ollama installieren', content: codeLine(cmd1, 'Im Terminal eingeben und Enter drücken:').outerHTML },
-      { num:3, title:`${model?.name || 'Modell'} herunterladen und starten`, content: codeLine(cmd3, 'Lädt das Modell herunter und startet direkt den Chat:').outerHTML + `<p class="text-xs text-muted-light mt-8" style="line-height:1.6;">Erster Download: ca. ${model?.size || '?'} — danach startet der Chat automatisch im Terminal.</p>` },
+      { num:1, title:'Open terminal', content: `<div class="flex items-center gap-8 bg-code border-hi rounded" style="padding:9px 13px;"><i class="fas fa-terminal" style="color:#52525b;"></i><code class="font-mono text-sm text-muted">${hint}</code></div>` },
+      { num:2, title:'Install Ollama', content: codeLine(cmd1, 'Enter in terminal and press Enter:').outerHTML },
+      { num:3, title:`Download and start ${model?.name || 'model'}`, content: codeLine(cmd3, 'Downloads the model and starts the chat directly:').outerHTML + `<p class="text-xs text-muted-light mt-8" style="line-height:1.6;">First download: approx. ${model?.size || '?'} — after that the chat starts automatically in the terminal.</p>` },
     ];
 
     const list = document.createElement('div');
@@ -545,20 +536,20 @@
     });
     frag.appendChild(list);
 
-    frag.appendChild(navRow(onBack, onNext, 'Abschliessen'));
+    frag.appendChild(navRow(onBack, onNext, 'Finish'));
     return frag;
   }
 
   function Done(model, onRestart) {
     const tips = [
-      { cmd:`ollama run ${model?.id||'llama3.2:3b'}`, label:'Modell starten' },
-      { cmd:'ollama list', label:'Installierte Modelle anzeigen' },
-      { cmd:'ollama pull qwen3.5:8b', label:'Weiteres Modell herunterladen' },
-      { cmd:`ollama rm ${model?.id||'llama3.2:3b'}`, label:'Modell entfernen' },
+      { cmd:`ollama run ${model?.id||'llama3.2:3b'}`, label:'Start model' },
+      { cmd:'ollama list', label:'Show installed models' },
+      { cmd:'ollama pull qwen3.5:8b', label:'Download another model' },
+      { cmd:`ollama rm ${model?.id||'llama3.2:3b'}`, label:'Remove model' },
     ];
     const tools = [
-      { name:'Open WebUI', url:'https://openwebui.com', desc:'Browser-basierte Chat-Oberfläche, verbindet sich automatisch mit Ollama.' },
-      { name:'LM Studio',  url:'https://lmstudio.ai',   desc:'Desktop-Anwendung mit grafischer Benutzeroberfläche, ebenfalls Ollama-kompatibel.' },
+      { name:'Open WebUI', url:'https://openwebui.com', desc:'Browser-based chat interface, connects automatically to Ollama.' },
+      { name:'LM Studio',  url:'https://lmstudio.ai',   desc:'Desktop application with graphical UI, also Ollama-compatible.' },
     ];
 
     const frag = document.createDocumentFragment();
@@ -567,27 +558,27 @@
     head.className = 'mb-32';
     head.innerHTML = `
       <div class="circle-check"><i class="fas fa-check"></i></div>
-      <h2 style="font-size:22px; font-weight:600; color:#fafafa; margin-bottom:8px;">Einrichtung abgeschlossen</h2>
-      <p class="text-sm text-muted" style="max-width:420px; line-height:1.75;"><strong style="color:#fafafa;">${model?.name||'Dein Modell'}</strong> läuft jetzt lokal auf deinem PC. Tippe im Terminal direkt deine Nachricht und drücke Enter.</p>
+      <h2 style="font-size:22px; font-weight:600; color:#fafafa; margin-bottom:8px;">Setup complete</h2>
+      <p class="text-sm text-muted" style="max-width:420px; line-height:1.75;"><strong style="color:#fafafa;">${model?.name||'Your model'}</strong> is now running locally on your PC. Type your message directly in the terminal and press Enter.</p>
     `;
     frag.appendChild(head);
 
     const tipBox = card(`
-      <p style="font-weight:500; font-size:13px; color:#fafafa; margin-bottom:6px;">Ersten Chat starten</p>
-      <p class="text-sm text-muted" style="line-height:1.7; margin-bottom:6px;">Schreibe nach dem Start einfach deine Nachricht und drücke Enter. Zum Beenden: <code class="inline-code">/bye</code> oder Strg+D.</p>
-      <p class="text-xs text-muted-light">Teste mit: "Erkläre mir maschinelles Lernen in drei Sätzen auf Deutsch."</p>
+      <p style="font-weight:500; font-size:13px; color:#fafafa; margin-bottom:6px;">Start your first chat</p>
+      <p class="text-sm text-muted" style="line-height:1.7; margin-bottom:6px;">Just type your message and press Enter. To exit: <code class="inline-code">/bye</code> or Ctrl+D.</p>
+      <p class="text-xs text-muted-light">Try: "Explain machine learning in three sentences in German."</p>
     `, false, null, true);
     frag.appendChild(tipBox);
 
     const cmdCard = card(`
-      <p style="font-weight:500; font-size:13px; color:#fafafa; margin-bottom:14px;">Nützliche Befehle</p>
+      <p style="font-weight:500; font-size:13px; color:#fafafa; margin-bottom:14px;">Useful commands</p>
       <div style="display:grid; gap:8px;">${tips.map(t => `<div><p style="font-size:11px; color:#52525b; margin-bottom:5px;">${t.label}</p>${codeLine(t.cmd).outerHTML}</div>`).join('')}</div>
     `);
     cmdCard.className += ' mb-10';
     frag.appendChild(cmdCard);
 
     const toolCard = card(`
-      <p style="font-weight:500; font-size:13px; color:#fafafa; margin-bottom:12px;">Grafische Oberfläche <span style="font-weight:400; color:#a1a1aa;">(optional)</span></p>
+      <p style="font-weight:500; font-size:13px; color:#fafafa; margin-bottom:12px;">Graphical interface <span style="font-weight:400; color:#a1a1aa;">(optional)</span></p>
       <div class="grid-2">${tools.map(t => `
         <div class="bg-code border-hi rounded" style="padding:12px 14px;">
           <div class="flex items-center gap-6 mb-6"><i class="fas fa-globe" style="color:#52525b; font-size:13px;"></i><span style="font-weight:500; font-size:13px; color:#fafafa;">${t.name}</span></div>
@@ -601,23 +592,20 @@
 
     const restartBtn = document.createElement('button');
     restartBtn.className = 'btn btn-outline';
-    restartBtn.innerHTML = '<i class="fas fa-undo-alt"></i> Neu starten';
+    restartBtn.innerHTML = '<i class="fas fa-undo-alt"></i> Restart';
     restartBtn.addEventListener('click', onRestart);
     frag.appendChild(restartBtn);
 
     return frag;
   }
 
-  // ─── Render ─────────────────────────────────────────────────────────────
   function render() {
     const { step, os, ram, model } = state;
 
-    // ─── filtered & topPick ──────────────────────────────────────────────
     const filtered = MODELS.filter(m => m.minRam <= (ram || 4));
     const topPick  = filtered.find(m => m.id === 'qwen3.5:8b') || filtered.find(m => m.pick) || filtered[0];
     const chosen   = model || topPick;
 
-    // ─── Step factory ────────────────────────────────────────────────────
     let content;
     const onNext = () => setState({ step: step+1 });
     const onBack = () => setState({ step: step-1 });
@@ -640,7 +628,6 @@
     }
 
     app.innerHTML = '';
-    // ─── Header ──────────────────────────────────────────────────────────
     const header = document.createElement('div');
     header.className = 'header';
     header.innerHTML = `
@@ -649,11 +636,9 @@
       <span class="header-badge">Setup</span>
     `;
     app.appendChild(header);
-    // ─── Content ────────────────────────────────────────────────────────
     if (content) app.appendChild(content);
   }
 
-  // initial render
   render();
 </script>
 </body>
