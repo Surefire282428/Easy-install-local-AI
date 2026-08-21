@@ -21,11 +21,6 @@ Powered by Ollama, the open-source tool for running large language models locall
 
 The wizard provides the exact commands for your OS. Copy them, paste into your terminal, and press Enter. After a few minutes, your first local AI model is ready to use.
 
-## Live Demo
-
-If you enable GitHub Pages, the application will be available at:
-https://your-username.github.io/localai-setup-wizard/
-
 ## License
 
 MIT – see the LICENSE file for details.
